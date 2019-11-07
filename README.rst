@@ -4,7 +4,7 @@
 About
 =====
 
-Stack traceback in C.
+Stack traceback in C on Linux.
 
 .. |buildstatus| image:: https://travis-ci.org/eerimoq/traceback.svg?branch=master
 .. _buildstatus: https://travis-ci.org/eerimoq/traceback
