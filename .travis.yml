@@ -1,0 +1,11 @@
+language: python
+
+python:
+  - "3.7"
+
+script:
+  - make test
+  - make -C examples/hello_world
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash) -X coveragepy
