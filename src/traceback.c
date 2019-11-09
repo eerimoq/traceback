@@ -34,7 +34,7 @@
 
 #define DEPTH_MAX 100
 
-void traceback_print(void)
+void traceback_print(const char *prefix_p)
 {
     int depth;
     void *addresses[DEPTH_MAX];
@@ -44,14 +44,18 @@ void traceback_print(void)
     int res;
     int i;
 
+    if (prefix_p == NULL) {
+        prefix_p = "";
+    }
+
     depth = backtrace(&addresses[0], DEPTH_MAX);
 
-    printf("Traceback (most recent call last):\n");
+    printf("%sTraceback (most recent call last):\n", prefix_p);
 
     size = readlink("/proc/self/exe", &exe[0], sizeof(exe) - 1);
 
     if (size == -1) {
-        printf("No executable found!\n");
+        printf("%sNo executable found!\n", prefix_p);
 
         return;
     }
@@ -59,6 +63,9 @@ void traceback_print(void)
     exe[size] = '\0';
 
     for (i = (depth - 1); i >= 0; i--) {
+        printf("%s  ", prefix_p);
+        fflush(stdout);
+
         snprintf(&command[0],
                  sizeof(command),
                  "addr2line -f -p -e %s %p",

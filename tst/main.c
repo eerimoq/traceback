@@ -32,7 +32,7 @@
 TEST(test_traceback_print)
 {
     CAPTURE_OUTPUT(output) {
-        traceback_print();
+        traceback_print("");
     }
 
     ASSERT_SUBSTRING(output, "Traceback (most recent call last):\n");
