@@ -26,11 +26,12 @@
  * This file is part of the traceback project.
  */
 
+#include <stdlib.h>
 #include "traceback.h"
 
 static void foo()
 {
-    traceback_print();
+    traceback_print(NULL);
 }
 
 static void bar()
