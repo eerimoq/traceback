@@ -27,13 +27,24 @@
  */
 
 #include "traceback.h"
-#include "narwhal.h"
+#include "nala.h"
 
 TEST(test_traceback_print)
 {
-    CAPTURE_OUTPUT(output) {
-        traceback_print("");
+    CAPTURE_OUTPUT(output, errput) {
+        traceback_print(NULL);
     }
 
-    ASSERT_SUBSTRING(output, "Traceback (most recent call last):\n");
+    ASSERT_SUBSTRING(output, "Traceback (most recent call last):\n  ");
+}
+
+TEST(test_traceback_print_prefix)
+{
+    CAPTURE_OUTPUT(output, errput) {
+        traceback_print("XXX");
+    }
+
+    ASSERT_SUBSTRING(output,
+                     "XXXTraceback (most recent call last):\n"
+                     "XXX ");
 }

@@ -2,12 +2,13 @@ INC += \
 	. \
 	../include
 SRC += \
-	narwhal.c \
+	nala.c \
 	../src/traceback.c \
 	main.c
 CFLAGS += \
 	-Werror \
-	-O0 \
+	-O1 \
+	-no-pie \
 	-g \
 	-Wall \
 	-fprofile-arcs \
