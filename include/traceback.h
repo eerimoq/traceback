@@ -26,7 +26,7 @@
  * This file is part of the traceback project.
  */
 
-#define TRACEBACK_VERSION "0.2.0"
+#define TRACEBACK_VERSION "0.3.0"
 
 /**
  * Print a traceback.
