@@ -26,7 +26,13 @@
  * This file is part of the traceback project.
  */
 
-#define TRACEBACK_VERSION "0.3.0"
+#define TRACEBACK_VERSION "0.4.0"
+
+/**
+ * Format given traceback. buffer_pp and depth are compatible with
+ * backtrace() output.
+ */
+char *traceback_format(const char *prefix_p, void **buffer_pp, int depth);
 
 /**
  * Print a traceback.

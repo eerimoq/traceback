@@ -26,6 +26,7 @@
  * This file is part of the traceback project.
  */
 
+#include <execinfo.h>
 #include "traceback.h"
 #include "nala.h"
 
@@ -47,4 +48,18 @@ TEST(test_traceback_print_prefix)
     ASSERT_SUBSTRING(output,
                      "XXXTraceback (most recent call last):\n"
                      "XXX ");
+}
+
+TEST(test_traceback_format)
+{
+    char *string_p;
+    int depth;
+    void *addresses[32];
+
+    depth = backtrace(&addresses[0], 32);
+    string_p = traceback_format(NULL, addresses, depth);
+
+    ASSERT_SUBSTRING(string_p,
+                     "Traceback (most recent call last):\n"
+                     "  ");
 }

@@ -1,9 +1,11 @@
 INC += \
 	. \
-	../include
+	../include \
+	../3pp/subprocess/include
 SRC += \
 	nala.c \
 	../src/traceback.c \
+	../3pp/subprocess/src/subprocess.c \
 	main.c
 CFLAGS += \
 	-Werror \
