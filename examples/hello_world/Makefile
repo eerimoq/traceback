@@ -8,3 +8,6 @@ SRC += \
 all:
 	gcc $(INC:%=-I%) $(SRC) -O0 -g -no-pie -o main
 	./main
+
+clean:
+	rm -f main

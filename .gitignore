@@ -54,3 +54,4 @@ examples/hello_world/main
 *.gcda
 *.gcno
 tst/main
+report.json
