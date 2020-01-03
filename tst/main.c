@@ -33,7 +33,7 @@
 TEST(test_traceback_print)
 {
     CAPTURE_OUTPUT(output, errput) {
-        traceback_print(NULL);
+        traceback_print(NULL, NULL);
     }
 
     ASSERT_SUBSTRING(output, "Traceback (most recent call last):\n  ");
@@ -42,12 +42,35 @@ TEST(test_traceback_print)
 TEST(test_traceback_print_prefix)
 {
     CAPTURE_OUTPUT(output, errput) {
-        traceback_print("XXX");
+        traceback_print(NULL, "XXX");
     }
 
     ASSERT_SUBSTRING(output,
                      "XXXTraceback (most recent call last):\n"
                      "XXX ");
+}
+
+void foo(void)
+{
+    traceback_print("foo", NULL);
+}
+
+void bar(void)
+{
+    foo();
+}
+
+TEST(test_traceback_print_ignore_function)
+{
+    CAPTURE_OUTPUT(output, errput) {
+        bar();
+    }
+
+    ASSERT_SUBSTRING(
+        output,
+        "Traceback (most recent call last):\n"
+        "  foo at /home/erik/workspace/traceback/tst/main.c:");
+    ASSERT_NOT_SUBSTRING(output, "bar at");
 }
 
 TEST(test_traceback_format)
@@ -57,7 +80,7 @@ TEST(test_traceback_format)
     void *addresses[32];
 
     depth = backtrace(&addresses[0], 32);
-    string_p = traceback_format(NULL, addresses, depth);
+    string_p = traceback_format(NULL, NULL, addresses, depth);
 
     ASSERT_SUBSTRING(string_p,
                      "Traceback (most recent call last):\n"

@@ -31,7 +31,7 @@
 
 static void foo()
 {
-    traceback_print(NULL);
+    traceback_print("main", NULL);
 }
 
 static void bar()

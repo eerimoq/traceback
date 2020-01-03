@@ -26,15 +26,25 @@
  * This file is part of the traceback project.
  */
 
-#define TRACEBACK_VERSION "0.5.0"
+#define TRACEBACK_VERSION "0.6.0"
 
 /**
  * Format given traceback. buffer_pp and depth are compatible with
  * backtrace() output.
  */
-char *traceback_format(const char *prefix_p, void **buffer_pp, int depth);
+char *traceback_format(const char *ignore_until_function_p,
+                       const char *prefix_p,
+                       void **buffer_pp,
+                       int depth);
+
+/**
+ * Create a traceback string.
+ */
+char *traceback_string(const char *ignore_until_function_p,
+                       const char *prefix_pp);
 
 /**
  * Print a traceback.
  */
-void traceback_print(const char *prefix_p);
+void traceback_print(const char *ignore_until_function_p,
+                     const char *prefix_pp);
