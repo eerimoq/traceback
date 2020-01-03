@@ -8,7 +8,7 @@ SRC += ../3pp/subprocess/src/subprocess.c
 SRC += main.c
 
 CFLAGS += -Werror
-CFLAGS += -O1
+CFLAGS += -O0
 CFLAGS += -no-pie
 CFLAGS += -g
 CFLAGS += -Wall

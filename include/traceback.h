@@ -26,25 +26,32 @@
  * This file is part of the traceback project.
  */
 
-#define TRACEBACK_VERSION "0.6.0"
+#include <stdbool.h>
+
+#define TRACEBACK_VERSION "0.7.0"
+
+typedef bool (*traceback_skip_filter_t)(void *arg_p, const char *line_p);
 
 /**
  * Format given traceback. buffer_pp and depth are compatible with
  * backtrace() output.
  */
-char *traceback_format(const char *ignore_until_function_p,
+char *traceback_format(void **buffer_pp,
+                       int depth,
                        const char *prefix_p,
-                       void **buffer_pp,
-                       int depth);
+                       traceback_skip_filter_t skip_filter,
+                       void *arg_p);
 
 /**
  * Create a traceback string.
  */
-char *traceback_string(const char *ignore_until_function_p,
-                       const char *prefix_pp);
+char *traceback_string(const char *prefix_pp,
+                       traceback_skip_filter_t skip_filter,
+                       void *arg_p);
 
 /**
  * Print a traceback.
  */
-void traceback_print(const char *ignore_until_function_p,
-                     const char *prefix_pp);
+void traceback_print(const char *prefix_pp,
+                     traceback_skip_filter_t skip_filter,
+                     void *arg_p);

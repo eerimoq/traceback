@@ -68,27 +68,11 @@ static char *strip_discriminator(char *line_p)
     return (line_p);
 }
 
-static bool is_before_ignore_function(const char *line_p,
-                                      const char *function_p,
-                                      bool *before_function_p)
-{
-    if (function_p == NULL) {
-        *before_function_p = false;
-    }
-
-    if (*before_function_p) {
-        if (strncmp(line_p, function_p, strlen(function_p)) == 0) {
-            *before_function_p = false;
-        }
-    }
-
-    return (*before_function_p);
-}
-
-char *traceback_format(const char *ignore_until_function_p,
+char *traceback_format(void **buffer_pp,
+                       int depth,
                        const char *prefix_p,
-                       void **buffer_pp,
-                       int depth)
+                       traceback_skip_filter_t skip_filter,
+                       void *arg_p)
 {
     char exe[256];
     char command[384];
@@ -98,7 +82,6 @@ char *traceback_format(const char *ignore_until_function_p,
     size_t stream_size;
     struct subprocess_result_t *result_p;
     char *string_p;
-    bool before_function;
 
     if (prefix_p == NULL) {
         prefix_p = "";
@@ -118,7 +101,6 @@ char *traceback_format(const char *ignore_until_function_p,
         return (NULL);
     }
 
-    before_function = true;
     fprintf(stream_p, "%sTraceback (most recent call last):\n", prefix_p);
 
     for (i = (depth - 1); i >= 0; i--) {
@@ -140,11 +122,11 @@ char *traceback_format(const char *ignore_until_function_p,
             continue;
         }
 
-        if (is_before_ignore_function(result_p->stdout.buf_p,
-                                      ignore_until_function_p,
-                                      &before_function)) {
-            subprocess_result_free(result_p);
-            continue;
+        if (skip_filter != NULL) {
+            if (skip_filter(arg_p, result_p->stdout.buf_p)) {
+                subprocess_result_free(result_p);
+                continue;
+            }
         }
 
         fprintf(stream_p, "%s  ", prefix_p);
@@ -160,23 +142,29 @@ char *traceback_format(const char *ignore_until_function_p,
     return (string_p);
 }
 
-char *traceback_string(const char *ignore_until_function_p,
-                       const char *prefix_p)
+char *traceback_string(const char *prefix_p,
+                       traceback_skip_filter_t skip_filter,
+                       void *arg_p)
 {
     int depth;
     void *addresses[DEPTH_MAX];
 
     depth = backtrace(&addresses[0], DEPTH_MAX);
 
-    return (traceback_format(prefix_p, ignore_until_function_p, addresses, depth));
+    return (traceback_format(addresses,
+                             depth,
+                             prefix_p,
+                             skip_filter,
+                             arg_p));
 }
 
-void traceback_print(const char *ignore_until_function_p,
-                     const char *prefix_p)
+void traceback_print(const char *prefix_p,
+                     traceback_skip_filter_t skip_filter,
+                     void *arg_p)
 {
     char *string_p;
 
-    string_p = traceback_string(prefix_p, ignore_until_function_p);
+    string_p = traceback_string(prefix_p, skip_filter, arg_p);
     printf("%s", string_p);
     free(string_p);
 }

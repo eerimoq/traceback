@@ -27,13 +27,14 @@
  */
 
 #include <execinfo.h>
+#include <string.h>
 #include "traceback.h"
 #include "nala.h"
 
 TEST(test_traceback_print)
 {
     CAPTURE_OUTPUT(output, errput) {
-        traceback_print(NULL, NULL);
+        traceback_print(NULL, NULL, NULL);
     }
 
     ASSERT_SUBSTRING(output, "Traceback (most recent call last):\n  ");
@@ -42,7 +43,7 @@ TEST(test_traceback_print)
 TEST(test_traceback_print_prefix)
 {
     CAPTURE_OUTPUT(output, errput) {
-        traceback_print(NULL, "XXX");
+        traceback_print("XXX", NULL, NULL);
     }
 
     ASSERT_SUBSTRING(output,
@@ -50,27 +51,59 @@ TEST(test_traceback_print_prefix)
                      "XXX ");
 }
 
-void foo(void)
+static bool fum_bar_filter(void *arg_p, const char *line_p)
 {
-    traceback_print("foo", NULL);
-}
-
-void bar(void)
-{
-    foo();
-}
-
-TEST(test_traceback_print_ignore_function)
-{
-    CAPTURE_OUTPUT(output, errput) {
-        bar();
+    if (strncmp(line_p, "fum at ", 7) == 0) {
+        return (false);
     }
 
-    ASSERT_SUBSTRING(
-        output,
-        "Traceback (most recent call last):\n"
-        "  foo at ");
-    ASSERT_NOT_SUBSTRING(output, "bar at");
+    if (strncmp(line_p, "fie at ", 7) == 0) {
+        return (false);
+    }
+
+    if (strncmp(line_p, "bar at ", 7) == 0) {
+        return (false);
+    }
+
+    return (true);
+}
+
+void foo(bool ignore_before_including, bool ignore_after_including)
+{
+    traceback_print(NULL, fum_bar_filter, NULL);
+}
+
+void bar(bool ignore_before_including, bool ignore_after_including)
+{
+    foo(ignore_before_including, ignore_after_including);
+}
+
+void fie(bool ignore_before_including, bool ignore_after_including)
+{
+    bar(ignore_before_including, ignore_after_including);
+}
+
+void fum(bool ignore_before_including, bool ignore_after_including)
+{
+    fie(ignore_before_including, ignore_after_including);
+}
+
+void fam(bool ignore_before_including, bool ignore_after_including)
+{
+    fum(ignore_before_including, ignore_after_including);
+}
+
+TEST(test_traceback_print_ignore_include_include)
+{
+    CAPTURE_OUTPUT(output, errput) {
+        fam(true, true);
+    }
+
+    ASSERT_NOT_SUBSTRING(output, "fam at");
+    ASSERT_SUBSTRING(output, "fum at");
+    ASSERT_SUBSTRING(output, "fie at");
+    ASSERT_SUBSTRING(output, "bar at ");
+    ASSERT_NOT_SUBSTRING(output, "foo at");
 }
 
 TEST(test_traceback_format)
@@ -80,7 +113,7 @@ TEST(test_traceback_format)
     void *addresses[32];
 
     depth = backtrace(&addresses[0], 32);
-    string_p = traceback_format(NULL, NULL, addresses, depth);
+    string_p = traceback_format(addresses, depth, NULL, NULL, NULL);
 
     ASSERT_SUBSTRING(string_p,
                      "Traceback (most recent call last):\n"
