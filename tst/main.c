@@ -68,35 +68,35 @@ static bool fum_bar_filter(void *arg_p, const char *line_p)
     return (true);
 }
 
-void foo(bool ignore_before_including, bool ignore_after_including)
+void foo(void)
 {
     traceback_print(NULL, fum_bar_filter, NULL);
 }
 
-void bar(bool ignore_before_including, bool ignore_after_including)
+void bar(void)
 {
-    foo(ignore_before_including, ignore_after_including);
+    foo();
 }
 
-void fie(bool ignore_before_including, bool ignore_after_including)
+void fie(void)
 {
-    bar(ignore_before_including, ignore_after_including);
+    bar();
 }
 
-void fum(bool ignore_before_including, bool ignore_after_including)
+void fum(void)
 {
-    fie(ignore_before_including, ignore_after_including);
+    fie();
 }
 
-void fam(bool ignore_before_including, bool ignore_after_including)
+void fam(void)
 {
-    fum(ignore_before_including, ignore_after_including);
+    fum();
 }
 
-TEST(test_traceback_print_ignore_include_include)
+TEST(test_traceback_skip_filter)
 {
     CAPTURE_OUTPUT(output, errput) {
-        fam(true, true);
+        fam();
     }
 
     ASSERT_NOT_SUBSTRING(output, "fam at");
