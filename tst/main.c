@@ -69,7 +69,7 @@ TEST(test_traceback_print_ignore_function)
     ASSERT_SUBSTRING(
         output,
         "Traceback (most recent call last):\n"
-        "  foo at /home/erik/workspace/traceback/tst/main.c:");
+        "  foo at ");
     ASSERT_NOT_SUBSTRING(output, "bar at");
 }
 
