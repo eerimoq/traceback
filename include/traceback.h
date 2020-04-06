@@ -28,7 +28,7 @@
 
 #include <stdbool.h>
 
-#define TRACEBACK_VERSION "0.7.0"
+#define TRACEBACK_VERSION "0.8.0"
 
 typedef bool (*traceback_skip_filter_t)(void *arg_p, const char *line_p);
 
@@ -39,19 +39,22 @@ typedef bool (*traceback_skip_filter_t)(void *arg_p, const char *line_p);
 char *traceback_format(void **buffer_pp,
                        int depth,
                        const char *prefix_p,
+                       const char *header_p,
                        traceback_skip_filter_t skip_filter,
                        void *arg_p);
 
 /**
  * Create a traceback string.
  */
-char *traceback_string(const char *prefix_pp,
+char *traceback_string(const char *prefix_p,
+                       const char *header_p,
                        traceback_skip_filter_t skip_filter,
                        void *arg_p);
 
 /**
  * Print a traceback.
  */
-void traceback_print(const char *prefix_pp,
+void traceback_print(const char *prefix_p,
+                     const char *header_p,
                      traceback_skip_filter_t skip_filter,
                      void *arg_p);

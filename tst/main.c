@@ -34,7 +34,7 @@
 TEST(test_traceback_print)
 {
     CAPTURE_OUTPUT(output, errput) {
-        traceback_print(NULL, NULL, NULL);
+        traceback_print(NULL, NULL, NULL, NULL);
     }
 
     ASSERT_SUBSTRING(output, "Traceback (most recent call last):\n  ");
@@ -43,12 +43,23 @@ TEST(test_traceback_print)
 TEST(test_traceback_print_prefix)
 {
     CAPTURE_OUTPUT(output, errput) {
-        traceback_print("XXX", NULL, NULL);
+        traceback_print("XXX", NULL, NULL, NULL);
     }
 
     ASSERT_SUBSTRING(output,
                      "XXXTraceback (most recent call last):\n"
                      "XXX ");
+}
+
+TEST(test_traceback_print_header)
+{
+    CAPTURE_OUTPUT(output, errput) {
+        traceback_print(NULL, "My header:", NULL, NULL);
+    }
+
+    ASSERT_SUBSTRING(output,
+                     "My header:\n"
+                     " ");
 }
 
 static bool fum_bar_filter(void *arg_p, const char *line_p)
@@ -70,7 +81,7 @@ static bool fum_bar_filter(void *arg_p, const char *line_p)
 
 void foo(void)
 {
-    traceback_print(NULL, fum_bar_filter, NULL);
+    traceback_print(NULL, NULL, fum_bar_filter, NULL);
 }
 
 void bar(void)
@@ -99,11 +110,11 @@ TEST(test_traceback_skip_filter)
         fam();
     }
 
-    ASSERT_NOT_SUBSTRING(output, "fam at");
-    ASSERT_SUBSTRING(output, "fum at");
-    ASSERT_SUBSTRING(output, "fie at");
-    ASSERT_SUBSTRING(output, "bar at ");
-    ASSERT_NOT_SUBSTRING(output, "foo at");
+    ASSERT_NOT_SUBSTRING(output, "fam");
+    ASSERT_SUBSTRING(output, "fum");
+    ASSERT_SUBSTRING(output, "fie");
+    ASSERT_SUBSTRING(output, "bar");
+    ASSERT_NOT_SUBSTRING(output, "foo");
 }
 
 TEST(test_traceback_format)
@@ -113,7 +124,7 @@ TEST(test_traceback_format)
     void *addresses[32];
 
     depth = backtrace(&addresses[0], 32);
-    string_p = traceback_format(addresses, depth, NULL, NULL, NULL);
+    string_p = traceback_format(addresses, depth, NULL, NULL, NULL, NULL);
 
     ASSERT_SUBSTRING(string_p,
                      "Traceback (most recent call last):\n"

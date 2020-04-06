@@ -36,6 +36,12 @@
 
 #define DEPTH_MAX 100
 
+#define ANSI_COLOR_GREEN "\x1b[32m"
+#define ANSI_COLOR_CYAN  "\x1b[36m"
+#define ANSI_RESET       "\x1b[0m"
+
+#define COLOR(color, ...) ANSI_RESET ANSI_COLOR_##color __VA_ARGS__ ANSI_RESET
+
 static void *fixaddr(void *address_p)
 {
     return ((void *)(((uintptr_t)address_p) - 1));
@@ -68,9 +74,34 @@ static char *strip_discriminator(char *line_p)
     return (line_p);
 }
 
+static void print_line(FILE *stream_p, const char *prefix_p, char *line_p)
+{
+    char *at_p;
+    char *function_p;
+    char *location_p;
+
+    function_p = line_p;
+    at_p = strstr(line_p, " at ");
+
+    if (at_p == NULL) {
+        fprintf(stream_p, "%s  %s", prefix_p, line_p);
+        return;
+    }
+
+    at_p[0] = '\0';
+    location_p = &at_p[4];
+
+    fprintf(stream_p,
+            "%s  " COLOR(GREEN, "%s") " at " COLOR(CYAN, "%s"),
+            prefix_p,
+            function_p,
+            location_p);
+}
+
 char *traceback_format(void **buffer_pp,
                        int depth,
                        const char *prefix_p,
+                       const char *header_p,
                        traceback_skip_filter_t skip_filter,
                        void *arg_p)
 {
@@ -87,6 +118,10 @@ char *traceback_format(void **buffer_pp,
         prefix_p = "";
     }
 
+    if (header_p == NULL) {
+        header_p = "Traceback (most recent call last):";
+    }
+
     size = readlink("/proc/self/exe", &exe[0], sizeof(exe) - 1);
 
     if (size == -1) {
@@ -101,7 +136,7 @@ char *traceback_format(void **buffer_pp,
         return (NULL);
     }
 
-    fprintf(stream_p, "%sTraceback (most recent call last):\n", prefix_p);
+    fprintf(stream_p, "%s%s\n", prefix_p, header_p);
 
     for (i = (depth - 1); i >= 0; i--) {
         snprintf(&command[0],
@@ -129,11 +164,9 @@ char *traceback_format(void **buffer_pp,
             }
         }
 
-        fprintf(stream_p, "%s  ", prefix_p);
-        fwrite(strip_discriminator(result_p->stdout.buf_p),
-               1,
-               strlen(result_p->stdout.buf_p),
-               stream_p);
+        print_line(stream_p,
+                   prefix_p,
+                   strip_discriminator(result_p->stdout.buf_p));
         subprocess_result_free(result_p);
     }
 
@@ -143,6 +176,7 @@ char *traceback_format(void **buffer_pp,
 }
 
 char *traceback_string(const char *prefix_p,
+                       const char *header_p,
                        traceback_skip_filter_t skip_filter,
                        void *arg_p)
 {
@@ -154,17 +188,19 @@ char *traceback_string(const char *prefix_p,
     return (traceback_format(addresses,
                              depth,
                              prefix_p,
+                             header_p,
                              skip_filter,
                              arg_p));
 }
 
 void traceback_print(const char *prefix_p,
+                       const char *header_p,
                      traceback_skip_filter_t skip_filter,
                      void *arg_p)
 {
     char *string_p;
 
-    string_p = traceback_string(prefix_p, skip_filter, arg_p);
+    string_p = traceback_string(prefix_p, header_p, skip_filter, arg_p);
     printf("%s", string_p);
     free(string_p);
 }
