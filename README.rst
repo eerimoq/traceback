@@ -4,7 +4,7 @@
 About
 =====
 
-Stack traceback in C on Linux.
+Colorful stack traceback in C on Linux.
 
 Example output
 ==============
