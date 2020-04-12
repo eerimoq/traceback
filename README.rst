@@ -6,6 +6,11 @@ About
 
 Stack traceback in C on Linux.
 
+Example output
+==============
+
+.. image:: https://github.com/eerimoq/traceback/raw/master/docs/hello-world.png
+
 .. |buildstatus| image:: https://travis-ci.org/eerimoq/traceback.svg?branch=master
 .. _buildstatus: https://travis-ci.org/eerimoq/traceback
 
