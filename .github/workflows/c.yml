@@ -1,0 +1,17 @@
+name: C
+
+on: [push]
+
+jobs:
+  build:
+
+    strategy:
+      matrix:
+        platform: [ubuntu-latest, macos-latest]
+
+    runs-on: ${{matrix.platform}}
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Test
+      make
