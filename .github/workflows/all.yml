@@ -21,6 +21,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: python -m pip install nala
-    - name: Build and run
+    - name: Build and run tests
       run: make test
+    - name: Build hello world example
       run: make -C examples/hello_world
