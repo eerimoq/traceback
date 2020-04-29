@@ -31,6 +31,7 @@
 #include <execinfo.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <errno.h>
 #include "traceback.h"
 #include "subprocess.h"
 
@@ -125,6 +126,7 @@ char *traceback_format(void **buffer_pp,
     size = readlink("/proc/self/exe", &exe[0], sizeof(exe) - 1);
 
     if (size == -1) {
+        printf("readlink: %d %s\n", errno, strerror(errno));
         return (NULL);
     }
 
@@ -148,6 +150,7 @@ char *traceback_format(void **buffer_pp,
         result_p = subprocess_exec_output(&command[0]);
 
         if (result_p->exit_code != 0) {
+            printf("addr2line\n");
             subprocess_result_free(result_p);
             continue;
         }
@@ -184,7 +187,8 @@ char *traceback_string(const char *prefix_p,
     void *addresses[DEPTH_MAX];
 
     depth = backtrace(&addresses[0], DEPTH_MAX);
-
+    printf("depth: %d\n", depth);
+    
     return (traceback_format(addresses,
                              depth,
                              prefix_p,
