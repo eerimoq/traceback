@@ -8,7 +8,7 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        platform: [ubuntu-latest, macos-latest]
+        platform: macos-latest
         python-version: [3.7]
 
     runs-on: ${{matrix.platform}}
@@ -17,7 +17,7 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: recursive
-    - name: debug
+    - name: dddde
       run: cat /Applications/Xcode_11.3.1.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/os/base.h
     - name: Build and run tests
       run: make test
