@@ -1,3 +1,6 @@
 [submodule "3pp/subprocess"]
 	path = 3pp/subprocess
 	url = https://github.com/eerimoq/subprocess
+[submodule "3pp/whereami"]
+	path = 3pp/whereami
+	url = https://github.com/eerimoq/whereami.git

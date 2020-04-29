@@ -30,8 +30,7 @@
 #include <stdint.h>
 #include <execinfo.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
+#include "whereami.h"
 #include "traceback.h"
 #include "subprocess.h"
 
@@ -108,12 +107,12 @@ char *traceback_format(void **buffer_pp,
 {
     char exe[256];
     char command[384];
-    ssize_t size;
     int i;
     FILE *stream_p;
     size_t stream_size;
     struct subprocess_result_t *result_p;
     char *string_p;
+    int length;
 
     if (prefix_p == NULL) {
         prefix_p = "";
@@ -123,14 +122,13 @@ char *traceback_format(void **buffer_pp,
         header_p = "Traceback (most recent call last):";
     }
 
-    size = readlink("/proc/self/exe", &exe[0], sizeof(exe) - 1);
+    length = wai_getExecutablePath(&exe[0], sizeof(exe) - 1, NULL);
 
-    if (size == -1) {
-        printf("readlink: %d %s\n", errno, strerror(errno));
+    if (length == -1) {
         return (NULL);
     }
 
-    exe[size] = '\0';
+    exe[length] = '\0';
 
     stream_p = open_memstream(&string_p, &stream_size);
 
@@ -187,8 +185,7 @@ char *traceback_string(const char *prefix_p,
     void *addresses[DEPTH_MAX];
 
     depth = backtrace(&addresses[0], DEPTH_MAX);
-    printf("depth: %d\n", depth);
-    
+
     return (traceback_format(addresses,
                              depth,
                              prefix_p,
@@ -205,6 +202,11 @@ void traceback_print(const char *prefix_p,
     char *string_p;
 
     string_p = traceback_string(prefix_p, header_p, skip_filter, arg_p);
-    printf("%s", string_p);
-    free(string_p);
+
+    if (string_p != NULL) {
+        printf("%s", string_p);
+        free(string_p);
+    } else {
+        printf("Failed to create a traceback!\n");
+    }
 }

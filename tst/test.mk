@@ -19,6 +19,7 @@ ifeq ($(SANITIZE), yes)
 CFLAGS += -fsanitize=address
 CFLAGS += -fsanitize=undefined
 endif
+CFLAGS += -DNALA_INCLUDE_NALA_MOCKS_H
 MOCKGENFLAGS += $(IMPLEMENTATION:%=-i %)
 MOCKGENFLAGS += $(NO_IMPLEMENTATION:%=-n %)
 NALA = nala

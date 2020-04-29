@@ -28,6 +28,7 @@
 
 #include <execinfo.h>
 #include <string.h>
+#include "whereami.h"
 #include "traceback.h"
 #include "nala.h"
 
@@ -129,4 +130,16 @@ TEST(test_traceback_format)
     ASSERT_SUBSTRING(string_p,
                      "Traceback (most recent call last):\n"
                      "  ");
+}
+
+TEST(get_executable_path_error_print)
+{
+    wai_getExecutablePath_mock_once(NULL, 255, -1);
+    wai_getExecutablePath_mock_ignore_out_in();
+
+    CAPTURE_OUTPUT(output, errput) {
+        traceback_print(NULL, NULL, NULL, NULL);
+    }
+
+    ASSERT_SUBSTRING(output, "Failed to create a traceback!\n");
 }
