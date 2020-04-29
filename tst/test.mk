@@ -83,6 +83,8 @@ $(BUILD)/nala_mocks.ldflags: $(TESTS)
 	mkdir -p $(@D)
 	[ -f $(BUILD)/nala_mocks.h ] || touch $(BUILD)/nala_mocks.h
 	cat $(TESTS) \
+	    | $(CC) $(CFLAGS) -DNALA_GENERATE_MOCKS -x c -E -
+	cat $(TESTS) \
 	    | $(CC) $(CFLAGS) -DNALA_GENERATE_MOCKS -x c -E - \
 	    | $(NALA) generate_mocks $(MOCKGENFLAGS) -o $(BUILD)
 	cat $(TESTS) \
