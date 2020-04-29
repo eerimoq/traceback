@@ -20,6 +20,7 @@ CFLAGS += -fsanitize=address
 CFLAGS += -fsanitize=undefined
 endif
 CFLAGS += -DNALA_INCLUDE_NALA_MOCKS_H
+CFLAGS += -fno-blocks
 MOCKGENFLAGS += $(IMPLEMENTATION:%=-i %)
 MOCKGENFLAGS += $(NO_IMPLEMENTATION:%=-n %)
 NALA = nala
