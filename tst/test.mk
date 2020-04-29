@@ -74,7 +74,6 @@ $(patsubst %.c,$(BUILD)%.o,$(abspath $1)): $1
 	@echo "CC $1"
 	mkdir -p $$(@D)
 	$$(CC) -MMD $$(CFLAGS) -c -o $$@ $$<
-	$(NALA) wrap_internal_symbols $(BUILD)/nala_mocks.ldflags $$@
 endef
 $(foreach file,$(SRC),$(eval $(call COMPILE_template,$(file))))
 
