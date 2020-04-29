@@ -8,7 +8,7 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        platform: [macos-latest]
+        platform: [ubuntu-latest, macos-latest]
         python-version: [3.7]
 
     runs-on: ${{matrix.platform}}
@@ -17,8 +17,12 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: recursive
-    - name: dddde
-      run: cat /Applications/Xcode_11.3.1.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/os/base.h
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: python -m pip install nala
     - name: Build and run tests
       run: make test
     - name: Build hello world example
