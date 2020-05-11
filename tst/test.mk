@@ -1,3 +1,4 @@
+NALA ?= nala
 BUILD = build
 EXE = $(BUILD)/app
 INC += $(BUILD)
@@ -6,6 +7,9 @@ INC += $(shell $(NALA) include_dir)
 SRC += $(BUILD)/nala_mocks.c
 SRC += $(shell $(NALA) c_sources)
 SRC += $(TESTS)
+# To evaluate once for fewer nala include_dir/c_sources calls.
+INC := $(INC)
+SRC := $(SRC)
 OBJ = $(patsubst %,$(BUILD)%,$(abspath $(SRC:%.c=%.o)))
 OBJDEPS = $(OBJ:%.o=%.d)
 MOCKGENDEPS = $(BUILD)/nala_mocks.ldflags.d
@@ -15,22 +19,41 @@ CFLAGS += -g
 CFLAGS += -O0
 CFLAGS += -no-pie
 CFLAGS += -coverage
+CFLAGS += -Wall
+CFLAGS += -Wextra
+CFLAGS += -Wpedantic
+CFLAGS += -Werror
+CFLAGS += -Wno-unused-command-line-argument
 ifeq ($(SANITIZE), yes)
 CFLAGS += -fsanitize=address
 CFLAGS += -fsanitize=undefined
 endif
+CFLAGS += -DNALA_INCLUDE_NALA_MOCKS_H
 MOCKGENFLAGS += $(IMPLEMENTATION:%=-i %)
 MOCKGENFLAGS += $(NO_IMPLEMENTATION:%=-n %)
-NALA = nala
+REPORT_JSON = $(BUILD)/report.json
+EXEARGS += $(ARGS)
+EXEARGS += $(JOBS:%=-j %)
+EXEARGS += $(REPORT_JSON:%=-r %)
+LIBS ?=
 
-.PHONY: all build generate clean coverage gdb gdb-run help
+.PHONY: all build generate clean coverage gdb gdb-run auto auto-run help
 
-all:
-	$(MAKE) build
-	$(EXE) $(ARGS)
+all: build
+	$(EXE) $(EXEARGS)
 
-build:
-	$(MAKE) generate
+auto:
+	$(MAKE) || true
+	while true ; do \
+	    $(MAKE) auto-run ; \
+	done
+
+auto-run:
+	for f in $(OBJDEPS) ; do \
+	    ls -1 $$(cat $$f | sed s/\\\\//g | sed s/.*://g) ; \
+	done | sort | uniq | grep -v $(BUILD) | entr -d -p $(MAKE)
+
+build: generate
 	$(MAKE) $(EXE)
 
 generate: $(BUILD)/nala_mocks.ldflags
@@ -61,13 +84,14 @@ help:
 	@echo "TARGET        DESCRIPTION"
 	@echo "---------------------------------------------------------"
 	@echo "all           Build and run with given ARGS."
+	@echo "auto          Build and run with given ARGS on source change."
 	@echo "clean         Remove build output."
 	@echo "coverage      Create the code coverage report."
 	@echo "gdb           Debug given test TEST with gdb."
 
 $(EXE): $(OBJ)
 	echo "LD $@"
-	$(CC) $(CFLAGS) @$(BUILD)/nala_mocks.ldflags $^ -o $@
+	$(CC) $(CFLAGS) @$(BUILD)/nala_mocks.ldflags $^ $(LIBS=%=-l%) -o $@
 
 define COMPILE_template
 $(patsubst %.c,$(BUILD)%.o,$(abspath $1)): $1
@@ -82,7 +106,7 @@ $(BUILD)/nala_mocks.ldflags: $(TESTS)
 	echo "MOCKGEN $(TESTS)"
 	mkdir -p $(@D)
 	[ -f $(BUILD)/nala_mocks.h ] || touch $(BUILD)/nala_mocks.h
-	cat $(TESTS) \
+	$(NALA) cat $(TESTS) \
 	    | $(CC) $(CFLAGS) -DNALA_GENERATE_MOCKS -x c -E - \
 	    | $(NALA) generate_mocks $(MOCKGENFLAGS) -o $(BUILD)
 	cat $(TESTS) \

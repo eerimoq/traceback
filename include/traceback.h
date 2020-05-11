@@ -28,7 +28,7 @@
 
 #include <stdbool.h>
 
-#define TRACEBACK_VERSION "0.8.0"
+#define TRACEBACK_VERSION "0.9.0"
 
 typedef bool (*traceback_skip_filter_t)(void *arg_p, const char *line_p);
 

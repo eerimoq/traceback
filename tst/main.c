@@ -37,7 +37,7 @@ TEST(test_traceback_print)
         traceback_print(NULL, NULL, NULL, NULL);
     }
 
-    ASSERT_SUBSTRING(output, "Traceback (most recent call last):\n  ");
+    ASSERT_SUBSTRING(output, "Traceback (most recent call first):\n  ");
 }
 
 TEST(test_traceback_print_prefix)
@@ -47,7 +47,7 @@ TEST(test_traceback_print_prefix)
     }
 
     ASSERT_SUBSTRING(output,
-                     "XXXTraceback (most recent call last):\n"
+                     "XXXTraceback (most recent call first):\n"
                      "XXX ");
 }
 
@@ -64,6 +64,8 @@ TEST(test_traceback_print_header)
 
 static bool fum_bar_filter(void *arg_p, const char *line_p)
 {
+    (void)arg_p;
+
     if (strncmp(line_p, "fum at ", 7) == 0) {
         return (false);
     }
@@ -127,6 +129,6 @@ TEST(test_traceback_format)
     string_p = traceback_format(addresses, depth, NULL, NULL, NULL, NULL);
 
     ASSERT_SUBSTRING(string_p,
-                     "Traceback (most recent call last):\n"
+                     "Traceback (most recent call first):\n"
                      "  ");
 }
