@@ -38,6 +38,10 @@ TEST(test_traceback_print)
     }
 
     ASSERT_SUBSTRING(output, "Traceback (most recent call first):\n  ");
+    ASSERT_SUBSTRING(output, " in \x1b[0m\x1b[32mtest_traceback_print()\n");
+    ASSERT_SUBSTRING(output, "      traceback_print(NULL, NULL, NULL, NULL);\n");
+    ASSERT_SUBSTRING(output, " in \x1b[0m\x1b[32mtest_entry()\n");
+    ASSERT_SUBSTRING(output, "      test_p->func();\n");
 }
 
 TEST(test_traceback_print_prefix)
@@ -112,11 +116,11 @@ TEST(test_traceback_skip_filter)
         fam();
     }
 
-    ASSERT_NOT_SUBSTRING(output, "fam");
-    ASSERT_SUBSTRING(output, "fum");
-    ASSERT_SUBSTRING(output, "fie");
-    ASSERT_SUBSTRING(output, "bar");
-    ASSERT_NOT_SUBSTRING(output, "foo");
+    ASSERT_NOT_SUBSTRING(output, "in \x1b[0m\x1b[32mfoo()\n");
+    ASSERT_SUBSTRING(output, "in \x1b[0m\x1b[32mbar()\n");
+    ASSERT_SUBSTRING(output, "in \x1b[0m\x1b[32mfie()\n");
+    ASSERT_SUBSTRING(output, "in \x1b[0m\x1b[32mfum()\n");
+    ASSERT_NOT_SUBSTRING(output, "in \x1b[0m\x1b[32mfam()\n");
 }
 
 TEST(test_traceback_format)
